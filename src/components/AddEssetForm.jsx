@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useCrypto } from "../context/cryptocomtext";
 import {
   Divider,
@@ -11,12 +11,16 @@ import {
   InputNumber,
   Button,
   DatePicker,
+  Result,
 } from "antd";
+import CoinInfo from "./CoinInfo";
 
 const AddEssetForm = () => {
+  const [submitted, setSubmitted] = useState(false);
   const [form] = Form.useForm();
-  const { crypto } = useCrypto();
+  const { crypto, addAsset } = useCrypto();
   const [coin, setCoin] = useState(null);
+  const assetref = useRef();
   const validateMessages = {
     required: "${label} is required!",
     types: {
@@ -57,7 +61,36 @@ const AddEssetForm = () => {
     const amount = form.getFieldValue("amount");
     form.setFieldValue("total", +(value * amount).toFixed(2));
   }
-  function onFinish() {}
+  function onFinish(values) {
+    const newAsset = {
+      id: coin.id,
+      amount: values.amount,
+      price: values.price,
+      data: values.data?.$d ?? new Date(),
+    };
+    console.log(newAsset);
+    assetref.current = newAsset;
+    setSubmitted(true);
+    addAsset(newAsset);
+  }
+  function onClose() {
+    setSubmitted(false);
+  }
+  if (submitted) {
+    return (
+      <Result
+        status="success"
+        title="New asset added"
+        subTitle={`Addes ${assetref.current.amount} of ${coin.name} by price ${assetref.current.price}$`}
+        extra={[
+          <Button type="primary" key="console" onClick={onClose}>
+            Close
+          </Button>,
+          <Button key="buy">Buy Again</Button>,
+        ]}
+      />
+    );
+  }
   return (
     <Form
       form={form}
@@ -71,12 +104,7 @@ const AddEssetForm = () => {
       onFinish={onFinish}
       validateMessages={validateMessages}
     >
-      <Flex align="center">
-        <img src={coin.icon} alt={coin.name} width={"40px"} />
-        <Typography.Title level={"2"} style={{ margin: 0 }}>
-          {coin.name}
-        </Typography.Title>
-      </Flex>
+      <CoinInfo coin={coin} />
       <Divider />
 
       <Form.Item

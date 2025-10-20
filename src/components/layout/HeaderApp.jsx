@@ -15,7 +15,7 @@ const headerStyle = {
 };
 
 const HeaderApp = () => {
-  const [drawer, setDrawer] = useState(true);
+  const [drawer, setDrawer] = useState(false);
   const [coin, setcoin] = useState(null);
   const [modal, setmodal] = useState();
   const [select, setSelect] = useState(false);
@@ -75,7 +75,7 @@ const HeaderApp = () => {
         open={drawer}
         destroyOnHidden
       >
-        <AddEssetForm />
+        <AddEssetForm onClose={() => setDrawer(false)} />
       </Drawer>
     </Layout.Header>
   );
